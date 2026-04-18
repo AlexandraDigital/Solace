@@ -1,0 +1,527 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Solace — Mental Health Support</title>
+<link href="https://fonts.googleapis.com/css2?family=Lora:ital,wght@0,400;0,600;1,400&family=DM+Sans:opsz,wght@9..40,300;9..40,400;9..40,500&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --sage: #7A9E7E; --sage-light: #C4D9C6; --sage-pale: #EDF4EE;
+    --warm: #C4956A; --warm-light: #F0DEC8;
+    --cream: #FAF8F4; --ink: #1C2420; --ink-mid: #4A5550;
+    --ink-soft: #8A9590; --border: rgba(28,36,32,0.10);
+    --radius: 16px; --radius-sm: 10px; --radius-pill: 99px;
+    --red: #D94F4F; --red-pale: #FDF0F0;
+  }
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body { font-family: 'DM Sans', sans-serif; background: var(--cream); color: var(--ink); min-height: 100vh; font-size: 15px; }
+
+  /* NAV */
+  nav { display:flex; align-items:center; justify-content:space-between; padding:20px 40px; border-bottom:1px solid var(--border); background:var(--cream); position:sticky; top:0; z-index:100; }
+  .logo { font-family:'Lora',serif; font-size:22px; color:var(--ink); letter-spacing:-0.3px; }
+  .logo span { color:var(--sage); }
+  .nav-links { display:flex; gap:6px; align-items:center; }
+  .nav-btn { padding:8px 18px; border-radius:var(--radius-pill); border:1px solid var(--border); background:transparent; font-family:'DM Sans',sans-serif; font-size:14px; color:var(--ink-mid); cursor:pointer; transition:all 0.2s; }
+  .nav-btn:hover { background:var(--sage-pale); color:var(--ink); }
+  .nav-btn.active { background:var(--ink); color:white; border-color:var(--ink); }
+  .nav-btn.danger { color:var(--red); border-color:rgba(217,79,79,0.2); }
+  .nav-btn.danger:hover { background:var(--red-pale); }
+  #nav-advisor-name { font-size:13px; color:var(--ink-soft); padding:0 8px; }
+
+  /* VIEWS */
+  .view { display:none; animation:fadeIn 0.25s ease; }
+  .view.active { display:block; }
+  @keyframes fadeIn { from{opacity:0;transform:translateY(6px)} to{opacity:1;transform:translateY(0)} }
+
+  /* HERO */
+  .hero { max-width:640px; margin:80px auto 0; padding:0 24px 60px; text-align:center; }
+  .hero-tag { display:inline-block; padding:5px 14px; border-radius:var(--radius-pill); background:var(--sage-pale); color:var(--sage); font-size:13px; font-weight:500; margin-bottom:20px; border:1px solid var(--sage-light); }
+  .hero h1 { font-family:'Lora',serif; font-size:44px; line-height:1.15; letter-spacing:-0.5px; margin-bottom:16px; }
+  .hero h1 em { font-style:italic; color:var(--sage); }
+  .hero p { font-size:16px; color:var(--ink-mid); line-height:1.7; margin-bottom:36px; font-weight:300; }
+
+  /* FORM */
+  .form-shell { max-width:600px; margin:0 auto; padding:0 24px 80px; }
+  .form-card { background:white; border:1px solid var(--border); border-radius:var(--radius); padding:36px; }
+  .form-card h2 { font-family:'Lora',serif; font-size:24px; margin-bottom:6px; }
+  .form-card .subtitle { color:var(--ink-soft); font-size:14px; margin-bottom:28px; font-weight:300; }
+  .field-group { margin-bottom:20px; }
+  label { display:block; font-size:13px; font-weight:500; color:var(--ink-mid); margin-bottom:8px; letter-spacing:0.02em; }
+  textarea, input[type=text], input[type=email], input[type=password] {
+    width:100%; padding:12px 16px; border:1px solid var(--border); border-radius:var(--radius-sm);
+    font-family:'DM Sans',sans-serif; font-size:15px; color:var(--ink); background:var(--cream);
+    outline:none; transition:border-color 0.2s; -webkit-appearance:none;
+  }
+  textarea:focus, input:focus { border-color:var(--sage); background:white; }
+  textarea { min-height:130px; resize:vertical; line-height:1.6; }
+  .topics-grid { display:grid; grid-template-columns:repeat(auto-fit,minmax(110px,1fr)); gap:8px; }
+  .topic-chip { padding:9px 12px; border-radius:var(--radius-pill); border:1px solid var(--border); background:var(--cream); font-size:13px; color:var(--ink-mid); cursor:pointer; text-align:center; transition:all 0.2s; user-select:none; }
+  .topic-chip:hover { border-color:var(--sage); color:var(--sage); }
+  .topic-chip.selected { background:var(--sage); color:white; border-color:var(--sage); }
+  .disclaimer-box { background:var(--warm-light); border-radius:var(--radius-sm); padding:14px 16px; font-size:13px; color:var(--ink-mid); line-height:1.6; border-left:3px solid var(--warm); margin-bottom:20px; }
+  .btn-primary { width:100%; padding:14px; border-radius:var(--radius-pill); border:none; background:var(--ink); color:white; font-family:'DM Sans',sans-serif; font-size:15px; font-weight:500; cursor:pointer; transition:all 0.2s; }
+  .btn-primary:hover { background:var(--sage); transform:translateY(-1px); }
+  .btn-primary:active { transform:scale(0.99); }
+  .btn-primary:disabled { opacity:0.5; cursor:not-allowed; transform:none; }
+  .error-msg { color:var(--red); font-size:13px; margin-top:10px; display:none; }
+
+  /* SUCCESS */
+  .success-state { text-align:center; padding:60px 24px; display:none; }
+  .success-icon { width:64px; height:64px; border-radius:50%; background:var(--sage-pale); display:flex; align-items:center; justify-content:center; margin:0 auto 20px; font-size:28px; }
+  .success-state h2 { font-family:'Lora',serif; font-size:26px; margin-bottom:12px; }
+  .success-state p { color:var(--ink-mid); font-size:15px; line-height:1.7; font-weight:300; max-width:380px; margin:0 auto 28px; }
+
+  /* ADVISOR DASHBOARD */
+  .dashboard { max-width:860px; margin:0 auto; padding:40px 24px 80px; }
+  .dash-header { display:flex; align-items:flex-end; justify-content:space-between; margin-bottom:32px; }
+  .dash-header h2 { font-family:'Lora',serif; font-size:28px; }
+  .dash-header .date { font-size:13px; color:var(--ink-soft); font-weight:300; }
+  .stats-row { display:grid; grid-template-columns:repeat(4,1fr); gap:12px; margin-bottom:36px; }
+  .stat-card { background:white; border:1px solid var(--border); border-radius:var(--radius); padding:20px 22px; }
+  .stat-card .stat-label { font-size:12px; color:var(--ink-soft); text-transform:uppercase; letter-spacing:0.06em; margin-bottom:8px; }
+  .stat-card .stat-value { font-family:'Lora',serif; font-size:30px; color:var(--ink); }
+  .stat-card.highlight { background:var(--sage); border-color:var(--sage); }
+  .stat-card.highlight .stat-label { color:rgba(255,255,255,0.7); }
+  .stat-card.highlight .stat-value { color:white; }
+  .section-title { font-size:12px; font-weight:500; text-transform:uppercase; letter-spacing:0.08em; color:var(--ink-soft); margin-bottom:14px; }
+  .q-card { background:white; border:1px solid var(--border); border-radius:var(--radius); padding:24px 28px; margin-bottom:14px; transition:box-shadow 0.2s; }
+  .q-card:hover { box-shadow:0 4px 20px rgba(0,0,0,0.06); }
+  .q-top { display:flex; align-items:flex-start; gap:14px; margin-bottom:14px; }
+  .avatar { width:38px; height:38px; border-radius:50%; display:flex; align-items:center; justify-content:center; font-size:13px; font-weight:500; flex-shrink:0; background:var(--sage-pale); color:var(--sage); }
+  .q-meta { flex:1; }
+  .q-anon { font-size:14px; font-weight:500; color:var(--ink); }
+  .q-time { font-size:12px; color:var(--ink-soft); margin-top:2px; }
+  .q-topic { display:inline-flex; align-items:center; padding:4px 12px; border-radius:var(--radius-pill); font-size:12px; background:var(--sage-pale); color:var(--sage); border:1px solid var(--sage-light); white-space:nowrap; }
+  .q-body { font-size:15px; line-height:1.7; color:var(--ink-mid); margin-bottom:18px; font-style:italic; font-family:'Lora',serif; }
+  .q-body::before { content:'\201C'; } .q-body::after { content:'\201D'; }
+  .q-actions { display:flex; gap:8px; }
+  .btn-respond { padding:9px 20px; border-radius:var(--radius-pill); background:var(--ink); color:white; border:none; font-family:'DM Sans',sans-serif; font-size:13px; font-weight:500; cursor:pointer; transition:all 0.2s; }
+  .btn-respond:hover { background:var(--sage); }
+  .btn-respond:disabled { opacity:0.5; cursor:not-allowed; }
+  .btn-ghost { padding:9px 20px; border-radius:var(--radius-pill); background:transparent; color:var(--ink-mid); border:1px solid var(--border); font-family:'DM Sans',sans-serif; font-size:13px; cursor:pointer; transition:all 0.2s; }
+  .btn-ghost:hover { border-color:var(--ink-mid); }
+  .answer-panel { margin-top:16px; border-top:1px solid var(--border); padding-top:16px; display:none; animation:fadeIn 0.2s ease; }
+  .answer-panel textarea { min-height:110px; margin-bottom:10px; }
+  .answer-note { font-size:12px; color:var(--ink-soft); margin-bottom:12px; line-height:1.5; padding-left:12px; border-left:2px solid var(--sage-light); }
+  .answer-actions { display:flex; align-items:center; gap:12px; }
+  .sent-badge { display:none; font-size:13px; color:var(--sage); font-weight:500; }
+  .q-card.resolving { transition:all 0.4s ease; max-height:0; opacity:0; overflow:hidden; margin-bottom:0; padding:0; }
+  .empty-state { text-align:center; padding:60px 24px; color:var(--ink-soft); }
+  .empty-state .big { font-family:'Lora',serif; font-size:20px; color:var(--ink-mid); margin-bottom:8px; }
+
+  /* LOGIN */
+  .login-shell { max-width:420px; margin:80px auto; padding:0 24px 80px; }
+  .login-shell .form-card { padding:40px; }
+  .login-shell h2 { font-family:'Lora',serif; font-size:28px; margin-bottom:6px; }
+  .login-shell .subtitle { color:var(--ink-soft); font-size:14px; margin-bottom:32px; }
+
+  /* ABOUT */
+  .about-shell { max-width:680px; margin:60px auto 80px; padding:0 24px; }
+  .about-shell h2 { font-family:'Lora',serif; font-size:34px; margin-bottom:14px; }
+  .about-shell p { font-size:16px; line-height:1.8; color:var(--ink-mid); font-weight:300; margin-bottom:16px; }
+  .pillars { display:grid; grid-template-columns:repeat(auto-fit,minmax(180px,1fr)); gap:16px; margin-top:36px; }
+  .pillar { background:white; border:1px solid var(--border); border-radius:var(--radius); padding:24px 20px; }
+  .pillar .icon { font-size:22px; margin-bottom:12px; }
+  .pillar h3 { font-size:15px; font-weight:500; margin-bottom:6px; }
+  .pillar p { font-size:13px; color:var(--ink-soft); line-height:1.6; margin:0; }
+  .features { display:grid; grid-template-columns:repeat(auto-fit,minmax(200px,1fr)); gap:14px; }
+
+  /* LOADING */
+  .spinner { display:inline-block; width:16px; height:16px; border:2px solid rgba(255,255,255,0.4); border-top-color:white; border-radius:50%; animation:spin 0.7s linear infinite; vertical-align:middle; margin-right:6px; }
+  @keyframes spin { to { transform:rotate(360deg); } }
+
+  @media(max-width:600px) {
+    nav { padding:16px 20px; }
+    .hero h1 { font-size:32px; }
+    .stats-row { grid-template-columns:repeat(2,1fr); }
+    .form-card { padding:24px 20px; }
+    .dashboard { padding:24px 16px 60px; }
+  }
+</style>
+</head>
+<body>
+
+<nav>
+  <div class="logo">Sol<span>ace</span></div>
+  <div class="nav-links">
+    <button class="nav-btn active" id="btn-home" onclick="goHome()">Get support</button>
+    <button class="nav-btn" id="btn-advisor" onclick="goAdvisor()">Advisor</button>
+    <button class="nav-btn" id="btn-about" onclick="showView('about','btn-about')">About</button>
+    <span id="nav-advisor-name" style="display:none"></span>
+    <button class="nav-btn danger" id="btn-logout" style="display:none" onclick="doLogout()">Sign out</button>
+  </div>
+</nav>
+
+<!-- USER HOME -->
+<div id="user-home" class="view active">
+  <div class="hero">
+    <div class="hero-tag">Free & confidential support</div>
+    <h1>You don't have to carry this <em>alone</em></h1>
+    <p>Share what's on your mind. A real, caring person will read your question and offer thoughtful guidance.</p>
+    <button class="btn-primary" style="width:auto;padding:14px 36px;" onclick="showView('ask','btn-home')">Ask a question</button>
+  </div>
+  <div style="max-width:800px;margin:0 auto;padding:0 24px 80px;">
+    <div class="features">
+      <div class="pillar"><div class="icon">🤝</div><h3>Human connection</h3><p>Every response comes from a real, trained advisor — not a bot.</p></div>
+      <div class="pillar"><div class="icon">🔒</div><h3>Anonymous by default</h3><p>No account needed. Your identity is never stored.</p></div>
+      <div class="pillar"><div class="icon">🌱</div><h3>Non-judgmental</h3><p>Whatever you're going through, you're welcome here.</p></div>
+    </div>
+  </div>
+</div>
+
+<!-- ASK FORM -->
+<div id="ask" class="view">
+  <div class="form-shell">
+    <div id="ask-form-wrap">
+      <div style="margin:40px 0 28px;">
+        <div class="hero-tag" style="margin-bottom:12px;">Ask for support</div>
+        <h1 style="font-family:'Lora',serif;font-size:30px;letter-spacing:-0.3px;">What's on your mind?</h1>
+      </div>
+      <div class="form-card">
+        <div class="field-group">
+          <label>Describe what you're going through</label>
+          <textarea id="q-text" placeholder="Share as much or as little as you feel comfortable with."></textarea>
+        </div>
+        <div class="field-group">
+          <label>Choose a topic (optional)</label>
+          <div class="topics-grid">
+            <div class="topic-chip" onclick="toggleTopic(this)">Anxiety</div>
+            <div class="topic-chip" onclick="toggleTopic(this)">Depression</div>
+            <div class="topic-chip" onclick="toggleTopic(this)">Relationships</div>
+            <div class="topic-chip" onclick="toggleTopic(this)">Work stress</div>
+            <div class="topic-chip" onclick="toggleTopic(this)">Grief</div>
+            <div class="topic-chip" onclick="toggleTopic(this)">Self-esteem</div>
+            <div class="topic-chip" onclick="toggleTopic(this)">Sleep</div>
+            <div class="topic-chip" onclick="toggleTopic(this)">Loneliness</div>
+            <div class="topic-chip" onclick="toggleTopic(this)">Family</div>
+          </div>
+        </div>
+        <div class="disclaimer-box">
+          <strong style="font-weight:500;">A gentle reminder:</strong> Solace offers peer support, not clinical therapy. If you're in crisis, please contact the 988 Suicide & Crisis Lifeline or your local emergency services.
+        </div>
+        <button class="btn-primary" id="ask-submit-btn" onclick="submitQuestion()">Send my question</button>
+        <div class="error-msg" id="ask-error">Something went wrong. Please try again.</div>
+      </div>
+    </div>
+    <div class="success-state" id="ask-success">
+      <div class="success-icon">🌿</div>
+      <h2>Your question has been received</h2>
+      <p>Thank you for reaching out. An advisor will read your message and respond thoughtfully. You're not alone in this.</p>
+      <button class="btn-primary" style="width:auto;padding:13px 32px;" onclick="resetAskForm()">Ask another question</button>
+    </div>
+  </div>
+</div>
+
+<!-- ADVISOR LOGIN -->
+<div id="login" class="view">
+  <div class="login-shell">
+    <div class="form-card">
+      <h2>Advisor sign in</h2>
+      <p class="subtitle">Access your dashboard to view and answer questions.</p>
+      <div class="field-group">
+        <label>Email</label>
+        <input type="email" id="login-email" placeholder="your@email.com" onkeydown="if(event.key==='Enter')doLogin()">
+      </div>
+      <div class="field-group">
+        <label>Password</label>
+        <input type="password" id="login-password" placeholder="••••••••" onkeydown="if(event.key==='Enter')doLogin()">
+      </div>
+      <button class="btn-primary" id="login-btn" onclick="doLogin()">Sign in</button>
+      <div class="error-msg" id="login-error">Invalid email or password.</div>
+    </div>
+  </div>
+</div>
+
+<!-- ADVISOR DASHBOARD -->
+<div id="advisor" class="view">
+  <div class="dashboard">
+    <div class="dash-header">
+      <div>
+        <h2 id="dash-greeting">Dashboard</h2>
+        <div class="date" id="dash-date"></div>
+      </div>
+      <button class="btn-ghost" onclick="loadQuestions()" style="font-size:13px;">↻ Refresh</button>
+    </div>
+    <div class="stats-row">
+      <div class="stat-card highlight"><div class="stat-label">New questions</div><div class="stat-value" id="stat-new">—</div></div>
+      <div class="stat-card"><div class="stat-label">Answered today</div><div class="stat-value" id="stat-today">—</div></div>
+      <div class="stat-card"><div class="stat-label">Total answered</div><div class="stat-value" id="stat-total">—</div></div>
+      <div class="stat-card"><div class="stat-label">Avg response time</div><div class="stat-value">—</div></div>
+    </div>
+    <div class="section-title">Awaiting your response</div>
+    <div id="questions-list"></div>
+    <div class="empty-state" id="empty-state" style="display:none;">
+      <div class="big">All caught up 🌿</div>
+      <div>No new questions right now. Check back soon.</div>
+    </div>
+  </div>
+</div>
+
+<!-- ABOUT -->
+<div id="about" class="view">
+  <div class="about-shell">
+    <h2>About Solace</h2>
+    <p>Solace is a peer support platform built on the belief that being heard is the first step toward feeling better. We connect people going through difficult moments with compassionate advisors who offer a non-judgmental space to think things through.</p>
+    <p>We don't replace professional mental health care — we complement it. Think of us as a first, safe, human step.</p>
+    <div class="pillars">
+      <div class="pillar"><div class="icon">🌿</div><h3>Peer support</h3><p>Real people responding with care and without judgment.</p></div>
+      <div class="pillar"><div class="icon">🔒</div><h3>Anonymous</h3><p>No accounts, no tracking. Your privacy is absolute.</p></div>
+      <div class="pillar"><div class="icon">🆓</div><h3>Free</h3><p>Support should be accessible to everyone, always.</p></div>
+      <div class="pillar"><div class="icon">🤝</div><h3>Not therapy</h3><p>We always encourage professional care when needed.</p></div>
+    </div>
+  </div>
+</div>
+
+<script>
+// ── STATE ──
+let currentAdvisor = null;
+
+// ── ROUTING ──
+function showView(id, btnId) {
+  document.querySelectorAll('.view').forEach(v => v.classList.remove('active'));
+  document.querySelectorAll('.nav-btn').forEach(b => b.classList.remove('active'));
+  document.getElementById(id).classList.add('active');
+  if (btnId) document.getElementById(btnId)?.classList.add('active');
+}
+
+function goHome() { showView('user-home', 'btn-home'); }
+
+async function goAdvisor() {
+  if (currentAdvisor) {
+    showView('advisor', 'btn-advisor');
+    loadQuestions();
+  } else {
+    showView('login', 'btn-advisor');
+  }
+}
+
+// ── INIT ──
+async function init() {
+  const d = new Date();
+  document.getElementById('dash-date').textContent = d.toLocaleDateString('en-US', { weekday:'long', month:'long', day:'numeric' });
+
+  try {
+    const res = await fetch('/api/me');
+    const data = await res.json();
+    if (data.authenticated) setAdvisor(data);
+  } catch {}
+}
+
+function setAdvisor(data) {
+  currentAdvisor = data;
+  document.getElementById('nav-advisor-name').textContent = data.name;
+  document.getElementById('nav-advisor-name').style.display = '';
+  document.getElementById('btn-logout').style.display = '';
+  const hour = new Date().getHours();
+  const greeting = hour < 12 ? 'Good morning' : hour < 17 ? 'Good afternoon' : 'Good evening';
+  document.getElementById('dash-greeting').textContent = `${greeting}, ${data.name.split(' ')[0]} ☀️`;
+}
+
+// ── LOGIN ──
+async function doLogin() {
+  const email = document.getElementById('login-email').value.trim();
+  const password = document.getElementById('login-password').value;
+  const btn = document.getElementById('login-btn');
+  const err = document.getElementById('login-error');
+  err.style.display = 'none';
+
+  if (!email || !password) { err.textContent = 'Please fill in both fields.'; err.style.display = 'block'; return; }
+
+  btn.disabled = true;
+  btn.innerHTML = '<span class="spinner"></span>Signing in…';
+
+  try {
+    const res = await fetch('/api/login', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ email, password })
+    });
+    const data = await res.json();
+    if (!res.ok) throw new Error(data.error || 'Login failed');
+
+    setAdvisor({ name: data.name, email });
+    showView('advisor', 'btn-advisor');
+    loadQuestions();
+  } catch (e) {
+    err.textContent = e.message;
+    err.style.display = 'block';
+  } finally {
+    btn.disabled = false;
+    btn.innerHTML = 'Sign in';
+  }
+}
+
+// ── LOGOUT ──
+async function doLogout() {
+  await fetch('/api/logout', { method: 'POST' });
+  currentAdvisor = null;
+  document.getElementById('nav-advisor-name').style.display = 'none';
+  document.getElementById('btn-logout').style.display = 'none';
+  goHome();
+}
+
+// ── SUBMIT QUESTION ──
+function toggleTopic(el) { el.classList.toggle('selected'); }
+
+async function submitQuestion() {
+  const body = document.getElementById('q-text').value.trim();
+  const topic = document.querySelector('.topic-chip.selected')?.textContent || null;
+  const btn = document.getElementById('ask-submit-btn');
+  const err = document.getElementById('ask-error');
+  err.style.display = 'none';
+
+  if (body.length < 5) { document.getElementById('q-text').focus(); return; }
+
+  btn.disabled = true;
+  btn.innerHTML = '<span class="spinner"></span>Sending…';
+
+  try {
+    const res = await fetch('/api/questions', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ body, topic })
+    });
+    if (!res.ok) throw new Error();
+    document.getElementById('ask-form-wrap').style.display = 'none';
+    document.getElementById('ask-success').style.display = 'block';
+  } catch {
+    err.style.display = 'block';
+  } finally {
+    btn.disabled = false;
+    btn.innerHTML = 'Send my question';
+  }
+}
+
+function resetAskForm() {
+  document.getElementById('q-text').value = '';
+  document.querySelectorAll('.topic-chip').forEach(c => c.classList.remove('selected'));
+  document.getElementById('ask-form-wrap').style.display = 'block';
+  document.getElementById('ask-success').style.display = 'none';
+}
+
+// ── LOAD QUESTIONS ──
+async function loadQuestions() {
+  const list = document.getElementById('questions-list');
+  const empty = document.getElementById('empty-state');
+  list.innerHTML = '<div style="color:var(--ink-soft);font-size:14px;padding:20px 0;">Loading…</div>';
+  empty.style.display = 'none';
+
+  try {
+    const res = await fetch('/api/questions?status=new');
+    if (res.status === 401) { showView('login','btn-advisor'); return; }
+    const data = await res.json();
+    const qs = data.questions || [];
+    document.getElementById('stat-new').textContent = qs.length;
+    renderQuestions(qs);
+  } catch {
+    list.innerHTML = '<div style="color:var(--red);font-size:14px;padding:20px 0;">Could not load questions.</div>';
+  }
+}
+
+function timeAgo(dt) {
+  const diff = (Date.now() - new Date(dt + 'Z').getTime()) / 1000;
+  if (diff < 3600) return Math.round(diff/60) + ' min ago';
+  if (diff < 86400) return Math.round(diff/3600) + ' hrs ago';
+  return Math.round(diff/86400) + ' days ago';
+}
+
+function renderQuestions(qs) {
+  const list = document.getElementById('questions-list');
+  const empty = document.getElementById('empty-state');
+  if (!qs.length) { list.innerHTML = ''; empty.style.display = 'block'; return; }
+  list.innerHTML = '';
+  qs.forEach(q => {
+    const card = document.createElement('div');
+    card.className = 'q-card';
+    card.id = 'qc-' + q.id;
+    card.innerHTML = `
+      <div class="q-top">
+        <div class="avatar">A</div>
+        <div class="q-meta">
+          <div class="q-anon">Anonymous</div>
+          <div class="q-time">${timeAgo(q.created_at)}</div>
+        </div>
+        ${q.topic ? `<div class="q-topic">${q.topic}</div>` : ''}
+      </div>
+      <div class="q-body">${q.body}</div>
+      <div class="q-actions">
+        <button class="btn-respond" onclick="toggleAnswerPanel(${q.id})">Respond</button>
+        <button class="btn-ghost" onclick="dismissQuestion(${q.id})">Dismiss</button>
+      </div>
+      <div class="answer-panel" id="ap-${q.id}">
+        <textarea id="at-${q.id}" placeholder="Write a warm, thoughtful response…"></textarea>
+        <div class="answer-note">Be supportive and non-directive. Suggest professional help for serious concerns.</div>
+        <div class="answer-actions">
+          <button class="btn-respond" id="ab-${q.id}" onclick="sendAnswer(${q.id})">Send response</button>
+          <span class="sent-badge" id="sb-${q.id}">✓ Sent</span>
+        </div>
+      </div>`;
+    list.appendChild(card);
+  });
+}
+
+function toggleAnswerPanel(id) {
+  const panel = document.getElementById('ap-' + id);
+  panel.style.display = panel.style.display === 'block' ? 'none' : 'block';
+  if (panel.style.display === 'block') document.getElementById('at-' + id).focus();
+}
+
+async function sendAnswer(id) {
+  const body = document.getElementById('at-' + id).value.trim();
+  if (!body) { document.getElementById('at-' + id).focus(); return; }
+
+  const btn = document.getElementById('ab-' + id);
+  btn.disabled = true;
+  btn.innerHTML = '<span class="spinner"></span>';
+
+  try {
+    const res = await fetch('/api/answer', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ question_id: id, body })
+    });
+    if (!res.ok) throw new Error();
+    document.getElementById('sb-' + id).style.display = 'inline';
+    btn.style.display = 'none';
+    setTimeout(() => removeCard('qc-' + id), 1000);
+  } catch {
+    btn.disabled = false;
+    btn.textContent = 'Send response';
+  }
+}
+
+async function dismissQuestion(id) {
+  await fetch('/api/dismiss', {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({ question_id: id })
+  });
+  removeCard('qc-' + id);
+}
+
+function removeCard(cardId) {
+  const card = document.getElementById(cardId);
+  if (!card) return;
+  const h = card.offsetHeight;
+  card.style.transition = 'all 0.35s ease';
+  card.style.maxHeight = h + 'px';
+  card.style.overflow = 'hidden';
+  requestAnimationFrame(() => {
+    card.style.maxHeight = '0';
+    card.style.opacity = '0';
+    card.style.marginBottom = '0';
+    card.style.padding = '0';
+  });
+  setTimeout(() => {
+    card.remove();
+    const remaining = document.querySelectorAll('.q-card').length;
+    document.getElementById('stat-new').textContent = remaining;
+    if (!remaining) document.getElementById('empty-state').style.display = 'block';
+  }, 380);
+}
+
+init();
+</script>
+</body>
+</html>
