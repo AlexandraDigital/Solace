@@ -1,10 +1,14 @@
 // functions/api/_auth.js
 // Shared helpers: hashing, session creation/validation
 
+import bcrypt from 'bcryptjs';
+
 export async function hashPassword(password) {
-  const enc = new TextEncoder();
-  const buf = await crypto.subtle.digest('SHA-256', enc.encode(password));
-  return Array.from(new Uint8Array(buf)).map(b => b.toString(16).padStart(2, '0')).join('');
+  return bcrypt.hash(password, 10);
+}
+
+export async function verifyPassword(password, hash) {
+  return bcrypt.compare(password, hash);
 }
 
 export function generateSessionId() {

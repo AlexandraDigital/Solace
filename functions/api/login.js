@@ -1,18 +1,20 @@
 // functions/api/login.js
-import { hashPassword, generateSessionId, json, corsHeaders } from './_auth.js';
+import { verifyPassword, generateSessionId, json, corsHeaders } from './_auth.js';
 
 export async function onRequestPost({ request, env }) {
   const { email, password } = await request.json();
   if (!email || !password) return json({ error: 'Missing fields' }, 400);
 
   const DB = env.DB;
-  const hash = await hashPassword(password);
 
   const advisor = await DB.prepare(
-    'SELECT id, name, email FROM advisors WHERE email = ? AND password_hash = ?'
-  ).bind(email.toLowerCase().trim(), hash).first();
+    'SELECT id, name, email, password_hash FROM advisors WHERE email = ?'
+  ).bind(email.toLowerCase().trim()).first();
 
   if (!advisor) return json({ error: 'Invalid email or password' }, 401);
+
+  const valid = await verifyPassword(password, advisor.password_hash);
+  if (!valid) return json({ error: 'Invalid email or password' }, 401);
 
   const sessionId = generateSessionId();
   const expires = new Date(Date.now() + 7 * 24 * 60 * 60 * 1000).toISOString().replace('T', ' ').slice(0, 19);
