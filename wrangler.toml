@@ -4,9 +4,8 @@ pages_build_output_dir = "public"
 
 [[d1_databases]]
 binding = "DB"
-database_name = "solace-db"
+database_name = "solace"
 database_id = "b0a40289-b23d-469f-8fee-e554bc2918a6"
    # replace after: wrangler d1 create solace-db
 
-[vars]
-SESSION_SECRET = "replace-with-a-long-random-string"
+
