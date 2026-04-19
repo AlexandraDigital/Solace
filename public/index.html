@@ -555,10 +555,18 @@ const installBanner = document.getElementById('install-banner');
 const installBtn = document.getElementById('install-btn');
 
 window.addEventListener('beforeinstallprompt', (e) => {
-  e.preventDefault();
+  e.preventDefault(); // Prevent browser's default PWA prompt
   deferredPrompt = e;
-  installBanner.style.display = 'block';
+  // Only show custom banner if not already installed
+  if (!navigator.standalone && !window.matchMedia('(display-mode: standalone)').matches) {
+    installBanner.style.display = 'flex';
+  }
 });
+
+// Also suppress on page load
+if (navigator.standalone || window.matchMedia('(display-mode: standalone)').matches) {
+  document.getElementById('install-banner').style.display = 'none';
+}
 
 window.addEventListener('appinstalled', () => {
   deferredPrompt = null;
