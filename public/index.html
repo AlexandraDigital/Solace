@@ -5,6 +5,10 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Solace — Mental Health Support</title>
 <link href="https://fonts.googleapis.com/css2?family=Lora:ital,wght@0,400;0,600;1,400&family=DM+Sans:opsz,wght@9..40,300;9..40,400;9..40,500&display=swap" rel="stylesheet">
+<link rel="manifest" href="/manifest.json">
+<meta name="theme-color" content="#7A9E7E">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
 <style>
   :root {
     --sage: #7A9E7E; --sage-light: #C4D9C6; --sage-pale: #EDF4EE;
@@ -132,11 +136,27 @@
   @keyframes spin { to { transform:rotate(360deg); } }
 
   @media(max-width:600px) {
-    nav { padding:16px 20px; }
-    .hero h1 { font-size:32px; }
+    nav { padding:14px 16px; gap:12px; flex-wrap:wrap; }
+    .logo { font-size:18px; }
+    .nav-links { gap:4px; }
+    .nav-btn { padding:7px 14px; font-size:13px; }
+    .hero { margin:60px auto 0; padding:0 16px 40px; }
+    .hero h1 { font-size:28px; line-height:1.2; }
+    .hero p { font-size:14px; margin-bottom:24px; }
+    .btn-primary { padding:12px; font-size:14px; }
     .stats-row { grid-template-columns:repeat(2,1fr); }
-    .form-card { padding:24px 20px; }
-    .dashboard { padding:24px 16px 60px; }
+    .stat-card { padding:16px 14px; }
+    .stat-card .stat-value { font-size:24px; }
+    .form-card { padding:20px 16px; }
+    .form-card h2 { font-size:20px; }
+    .dashboard { padding:20px 12px 60px; }
+    .dash-header { flex-direction:column; align-items:flex-start; gap:12px; }
+    .q-card { padding:16px 20px; }
+    .pillars { grid-template-columns:1fr; gap:12px; }
+    .pillar { padding:16px 14px; }
+    .about-shell { margin:40px auto 60px; }
+    .about-shell h2 { font-size:26px; margin-bottom:12px; }
+    .about-shell p { font-size:14px; line-height:1.7; margin-bottom:12px; }
   }
 </style>
 </head>
@@ -152,6 +172,14 @@
     <button class="nav-btn danger" id="btn-logout" style="display:none" onclick="doLogout()">Sign out</button>
   </div>
 </nav>
+
+<!-- PWA INSTALL BANNER -->
+<div id="install-banner" style="display:none;background:var(--sage);color:white;padding:16px 24px;text-align:center;box-shadow:0 2px 8px rgba(0,0,0,0.1);z-index:99;position:relative;">
+  <div style="max-width:600px;margin:0 auto;display:flex;align-items:center;justify-content:center;gap:16px;flex-wrap:wrap;">
+    <span style="font-size:14px;font-weight:500;">Install Solace for quick access</span>
+    <button id="install-btn" style="padding:8px 20px;background:white;color:var(--sage);border:none;border-radius:var(--radius-pill);font-weight:500;font-size:13px;cursor:pointer;transition:all 0.2s;" onclick="installPWA()">Install</button>
+  </div>
+</div>
 
 <!-- USER HOME -->
 <div id="user-home" class="view active">
@@ -519,6 +547,39 @@ function removeCard(cardId) {
     document.getElementById('stat-new').textContent = remaining;
     if (!remaining) document.getElementById('empty-state').style.display = 'block';
   }, 380);
+}
+
+// ── PWA INSTALL ──
+let deferredPrompt;
+const installBanner = document.getElementById('install-banner');
+const installBtn = document.getElementById('install-btn');
+
+window.addEventListener('beforeinstallprompt', (e) => {
+  e.preventDefault();
+  deferredPrompt = e;
+  installBanner.style.display = 'block';
+});
+
+window.addEventListener('appinstalled', () => {
+  deferredPrompt = null;
+  installBanner.style.display = 'none';
+});
+
+function installPWA() {
+  if (deferredPrompt) {
+    deferredPrompt.prompt();
+    deferredPrompt.userChoice.then((choiceResult) => {
+      if (choiceResult.outcome === 'accepted') {
+        installBanner.style.display = 'none';
+      }
+      deferredPrompt = null;
+    });
+  }
+}
+
+// Register service worker
+if ('serviceWorker' in navigator) {
+  navigator.serviceWorker.register('/sw.js').catch(err => console.log('SW registration failed:', err));
 }
 
 init();

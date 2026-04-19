@@ -1,0 +1,43 @@
+{
+  "name": "Solace — Mental Health Support",
+  "short_name": "Solace",
+  "description": "Free, anonymous peer support from real, caring people",
+  "start_url": "/",
+  "scope": "/",
+  "display": "standalone",
+  "orientation": "portrait-primary",
+  "theme_color": "#7A9E7E",
+  "background_color": "#FAF8F4",
+  "icons": [
+    {
+      "src": "data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 192 192'><rect fill='%237A9E7E' width='192' height='192'/><text x='50%' y='50%' font-size='120' font-family='serif' fill='white' text-anchor='middle' dominant-baseline='central'>🌿</text></svg>",
+      "sizes": "192x192",
+      "type": "image/svg+xml",
+      "purpose": "any"
+    },
+    {
+      "src": "data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 512 512'><rect fill='%237A9E7E' width='512' height='512'/><text x='50%' y='50%' font-size='320' font-family='serif' fill='white' text-anchor='middle' dominant-baseline='central'>🌿</text></svg>",
+      "sizes": "512x512",
+      "type": "image/svg+xml",
+      "purpose": "any maskable"
+    }
+  ],
+  "screenshots": [
+    {
+      "src": "data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 540 720'><rect fill='%23FAF8F4' width='540' height='720'/><text x='50%' y='100' font-size='36' font-family='serif' fill='%231C2420' text-anchor='middle'>Solace</text></svg>",
+      "sizes": "540x720",
+      "type": "image/svg+xml",
+      "form_factor": "narrow"
+    }
+  ],
+  "categories": ["health", "productivity"],
+  "shortcuts": [
+    {
+      "name": "Ask a question",
+      "short_name": "Ask",
+      "description": "Share what's on your mind",
+      "url": "/?view=ask",
+      "icons": [{ "src": "data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 96 96'><rect fill='%237A9E7E' width='96' height='96'/><text x='50%' y='50%' font-size='60' font-family='serif' fill='white' text-anchor='middle' dominant-baseline='central'>💬</text></svg>", "sizes": "96x96" }]
+    }
+  ]
+}
